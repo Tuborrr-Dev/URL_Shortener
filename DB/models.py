@@ -1,13 +1,11 @@
-from URL_Shortener.DB.db import Base
-from datetime import datetime, UTC
-from sqlalchemy import Table, text, Column, Integer, String, ForeignKey, DateTime, Index
-from sqlalchemy.orm import relationship
+from URL_Shortener.DB.db import Base, engine
+from sqlalchemy import Table, text, Column, Integer, String, ForeignKey, DateTime
 
 
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable=False)
+    username = Column(String(100), nullable=False)
     email = Column(String, unique=True, nullable=False)
     created_at = Column(DateTime, server_default=text("now()"))
 
@@ -15,7 +13,11 @@ class User(Base):
 class Link(Base):
     __tablename__ = "links"
     id = Column(Integer, primary_key=True)
-    short_code = Column(String(10), unique=True, nullable=False, index=True)
+    short_code = Column(
+        String(10),
+        unique=True,
+        nullable=False,
+    )
     long_url = Column(String(200), nullable=False)
     created_at = Column(DateTime, server_default=text("now()"))
     user_id = Column(Integer, ForeignKey("users.id"))
@@ -37,3 +39,6 @@ click_links = Table(
     Column("link_id", ForeignKey("links.id", ondelete="CASCADE"), primary_key=True),
     Column("click_id", ForeignKey("clicks.id", ondelete="CASCADE"), primary_key=True),
 )
+
+# create at all instances
+Base.metadata.create_all(engine)
