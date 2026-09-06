@@ -1,4 +1,4 @@
-from URL_Shortener.DB.db import Base, engine
+from URL_Shortener.database import Base, engine
 from sqlalchemy import Table, text, Column, Integer, String, ForeignKey, DateTime
 
 

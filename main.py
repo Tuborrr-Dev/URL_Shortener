@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
-from URL_Shortener.DB.models import User, Link, Click, click_links
-from URL_Shortener.DB.db import SessionLocal
+from URL_Shortener.models.models import User, Link, Click, click_links
+from URL_Shortener.database import SessionLocal
 from URL_Shortener.services.shortener import shorten_B62
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
@@ -16,6 +16,10 @@ def get_db():
         yield db
     finally:
         db.close()  # to avoid DB leaks
+
+
+# endpoint to register a user still not available
+# endpoint to check if a user exists still not available
 
 
 @app.post("/{username}/{url}")  # <-- this is the post method to our API to save the URL

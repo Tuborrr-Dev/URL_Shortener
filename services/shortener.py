@@ -2,7 +2,7 @@ import string
 import secrets
 
 # 62 possible characters (26 lowercase + 26 uppercase + 10 digits)
-# all of the above gives us a long line of possible combinations
+# all of the above gives us 56.8 billion unique short URLs
 BASE62 = string.ascii_letters + string.digits
 
 
