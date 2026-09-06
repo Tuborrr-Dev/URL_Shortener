@@ -2,6 +2,7 @@ import string
 import secrets
 
 # 62 possible characters (26 lowercase + 26 uppercase + 10 digits)
+# all of the above gives us a long line of possible combinations
 BASE62 = string.ascii_letters + string.digits
 
 

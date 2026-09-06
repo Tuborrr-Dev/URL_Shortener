@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from URL_Shortener.DB.models import User, Link, Click, click_links
 from URL_Shortener.DB.db import SessionLocal
-from URL_Shortener.PROCESSING.shortener import shorten_B62
+from URL_Shortener.services.shortener import shorten_B62
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import text
