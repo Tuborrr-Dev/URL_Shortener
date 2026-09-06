@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
-from URL_Shortener.CORE.config import (
+from URL_Shortener.core.config import (
     settings,
 )  # we import all our .env through the core config files
 
