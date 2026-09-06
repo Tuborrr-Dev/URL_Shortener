@@ -12,3 +12,12 @@ SessionLocal = sessionmaker(bind=engine)  # engine binded to the
 
 class Base(DeclarativeBase):
     pass  # to maintain registry of all tables and all models import this
+
+
+# first we try creating our DB through our models and handing it over to FAST
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()  # to avoid DB leaks
