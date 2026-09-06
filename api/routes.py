@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from URL_Shortener.schemas.pydantic_models import UrlRequest
-from URL_Shortener.crud.shorten_url import shorten
+from URL_Shortener.crud.url_processing import shorten
 
 router = APIRouter()
 
@@ -25,8 +25,10 @@ def shorten_url(
 # GET /{code} redirects to the original.
 # Cache the code → URL in Redis with a 1-hour TTL
 # Record every click in the clicks table as a background RQ jo
-@router.get("/{code}")
-def generate_url():
+@router.get("/{short_code}")
+def generate_url(
+    short_code: str,
+):  # <-- first off before cache lets try to get our code from our CRUD
 
     return  # look up the code in the cache and then if not there from DB and return a 301 redirect
 
