@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from URL_Shortener.schemas.pydantic_models import UrlRequest
-from URL_Shortener.crud.url_processing import shorten
+from URL_Shortener.crud.url_processing import shorten, elongate
 
 router = APIRouter()
 
@@ -29,8 +29,13 @@ def shorten_url(
 def generate_url(
     short_code: str,
 ):  # <-- first off before cache lets try to get our code from our CRUD
+    long_cd = elongate(short_code)
+    # now long_cd contains the full url
+    if not long_cd:
+        raise HTTPException(status_code=400, detail="Link not found")
+    return {"URL_elongated": long_cd}
 
-    return  # look up the code in the cache and then if not there from DB and return a 301 redirect
+    # look up the code in the cache and then if not there from DB and return a 301 redirect
 
 
 # GET /links/{code}/stats —
