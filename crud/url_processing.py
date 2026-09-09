@@ -1,8 +1,9 @@
-from URL_Shortener.models.models import User, Link, Click, click_links
+from URL_Shortener.models.models import User, Link, Click
 from URL_Shortener.services.shortener import shorten_B62
 from URL_Shortener.schemas.pydantic_models import UrlRequest
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func
 
 
 # now we create an entire function to do all our CRUD processes for us
@@ -24,15 +25,25 @@ def shorten(username: str, long_url: str, db: Session) -> str:
             db.commit()
             # return the short code, after storing in Postgres
             return short_cd
+        # in the case where it has been stored the integrityError is raised and the entire process is roll-backed
         except IntegrityError:
             db.rollback()
     # and if after 3 tries it still shows DB has what we used we return none
     return None
 
 
-def elongate(short_code: str, db: Session):
+def elongate(short_code: str, db: Session) -> str:
     # check in Link and get long url from DB
     link = db.query(Link).filter(Link.short_code == short_code).first()
     if not link:  # not in that bih
         return None
+    # above all else after confirming a link exists now a count should exist towards its clicks
+    new_click = Click(link_id=link.id, referrer=link.owner.username)
+    db.add(new_click)
+    db.commit()
     return link.long_url
+
+
+"""total_clicks = (
+        db.query(func.count(Click.id)).filter(Click.link_id == link.id).scalar()
+    )"""
