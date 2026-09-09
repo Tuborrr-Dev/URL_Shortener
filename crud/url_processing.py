@@ -16,6 +16,11 @@ def shorten(username: str, long_url: str, db: Session) -> str:
         return None
     if long_url is None:
         return None
+    # in the case we have stored the exact same URL before, we dont want to store the same thing, save space
+    link_b4 = db.query(Link).filter(Link.long_url == long_url).first()
+    if link_b4:
+        # then we already have this before
+        return link_b4.short_code
     max_retries = 3
     for x in range(max_retries):
         try:
@@ -32,13 +37,13 @@ def shorten(username: str, long_url: str, db: Session) -> str:
     return None
 
 
-def elongate(short_code: str, db: Session) -> str:
+def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str:
     # check in Link and get long url from DB
     link = db.query(Link).filter(Link.short_code == short_code).first()
     if not link:  # not in that bih
         return None
     # above all else after confirming a link exists now a count should exist towards its clicks
-    new_click = Click(link_id=link.id, referrer=link.owner.username)
+    new_click = Click(link_id=link.id, referrer=refer_url, ip_hash=iphash)
     db.add(new_click)
     db.commit()
     return link.long_url
