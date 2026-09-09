@@ -49,6 +49,8 @@ def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str:
     return link.long_url
 
 
+#    NEXT THING TO DO IS Cache the code → URL in Redis with a 1-hour TTL
+# .  and then Record every click in the clicks table as a background RQ job
 """total_clicks = (
         db.query(func.count(Click.id)).filter(Click.link_id == link.id).scalar()
     )"""
