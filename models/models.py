@@ -30,7 +30,7 @@ class Click(Base):
     id = Column(Integer, primary_key=True)
     # we have to delete clicks for a link if deleted
     link_id = Column(
-        Integer, ForeignKey("links.id"), ondelete="CASCADE", nullable=False
+        Integer, ForeignKey("links.id", ondelete="CASCADE"), nullable=False
     )
     clicked_at = Column(DateTime, server_default=text("now()"))
     ip_hash = Column(String(100))
