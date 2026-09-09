@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from database import get_db
 from URL_Shortener.schemas.pydantic_models import UrlRequest
 from URL_Shortener.crud.url_processing import shorten, elongate
+import hashlib
 
 router = APIRouter()
 
@@ -26,10 +27,18 @@ def shorten_url(
 # Cache the code → URL in Redis with a 1-hour TTL
 # Record every click in the clicks table as a background RQ jo
 @router.get("/{short_code}")
-def generate_url(
-    short_code: str,
-):  # <-- first off before cache lets try to get our code from our CRUD
-    long_cd = elongate(short_code)
+def generate_url(short_code: str, request: Request, db: Session = Depends(get_db)):
+    # gets where the user came from (e.g., "https://twitter.com/")
+    referrer_url = request.headers.get("referer")
+
+    # the raw IP (or fallback if behind a proxy
+    raw_ip = request.headers.get("x-forwarded-for") or (
+        request.client.host if request.client else "unknown"
+    )
+    # we then hash with SHA-256
+    ip_hash = hashlib.sha256(raw_ip.encode("utf-8")).hexdigest()
+    # <-- first off before cache lets try to get our code from our CRUD
+    long_cd = elongate(short_code, referrer_url, ip_hash, db)
     # now long_cd contains the full url
     if not long_cd:
         raise HTTPException(status_code=400, detail="Link not found")
