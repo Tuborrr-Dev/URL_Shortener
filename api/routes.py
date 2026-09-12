@@ -24,7 +24,6 @@ def shorten_url(
         raise HTTPException(status_code=400, detail="User not found or Duplicate error")
 
 
-# Cache the code → URL in Redis with a 1-hour TTL
 # Record every click in the clicks table as a background RQ jo
 @router.get("/{short_code}")
 def generate_url(short_code: str, request: Request, db: Session = Depends(get_db)):
@@ -48,9 +47,8 @@ def generate_url(short_code: str, request: Request, db: Session = Depends(get_db
         raise HTTPException(status_code=404, detail="Link not found")
     return RedirectResponse(
         url=long_cd, status_code=307
-    )  # ensures our click function is active and still redirects the browser insteda of json
+    )  # <-- ensures our click function is active and still redirects the browser insteda of json
 
-    #    NEXT THING TO DO IS Cache the code → URL in Redis with a 1-hour TTL
     # .  and then Record every click in the clicks table as a background RQ job
 
 
