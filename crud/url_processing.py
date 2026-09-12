@@ -9,6 +9,9 @@ from sqlalchemy import func
 from URL_Shortener.services.cache import r
 import json
 
+# for background jobs
+from URL_Shortener.services.background_tasks import log_clicks
+
 
 # now we create an entire function to do all our CRUD processes for us
 def shorten(username: str, long_url: str, db: Session) -> str:
@@ -65,15 +68,14 @@ def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str |
             ex=3600,
         )  # <-- TTL is 1 hour
     # above all else after confirming a link exists now a count should exist towards its clicks
-    """but should exist as a Background job """
-    new_click = Click(link_id=link.id, referrer=refer_url, ip_hash=iphash)
-    db.add(new_click)
-    db.commit()
+    log_clicks.delay(
+        link_id=link_id,
+        referrer=refer_url,
+        ip_hash=iphash,
+    )
     return long_url
 
 
-#    NEXT THING TO DO IS Cache the code → URL in Redis with a 1-hour TTL
-# .  and then Record every click in the clicks table as a background RQ job
 """total_clicks = (
         db.query(func.count(Click.id)).filter(Click.link_id == link.id).scalar()
     )"""
