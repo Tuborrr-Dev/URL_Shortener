@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database import get_db
 from URL_Shortener.schemas.pydantic_models import UrlRequest
@@ -23,7 +24,6 @@ def shorten_url(
         raise HTTPException(status_code=400, detail="User not found or Duplicate error")
 
 
-# GET /{code} redirects to the original.
 # Cache the code → URL in Redis with a 1-hour TTL
 # Record every click in the clicks table as a background RQ jo
 @router.get("/{short_code}")
@@ -46,7 +46,10 @@ def generate_url(short_code: str, request: Request, db: Session = Depends(get_db
     # now long_cd contains the full url
     if not long_cd:
         raise HTTPException(status_code=404, detail="Link not found")
-    return {"URL_elongated": long_cd}
+    return RedirectResponse(
+        url=long_cd, status_code=307
+    )  # ensures our click function is active and still redirects the browser insteda of json
+
     #    NEXT THING TO DO IS Cache the code → URL in Redis with a 1-hour TTL
     # .  and then Record every click in the clicks table as a background RQ job
 
