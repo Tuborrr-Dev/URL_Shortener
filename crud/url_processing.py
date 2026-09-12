@@ -65,6 +65,7 @@ def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str |
             ex=3600,
         )  # <-- TTL is 1 hour
     # above all else after confirming a link exists now a count should exist towards its clicks
+    """but should exist as a Background job """
     new_click = Click(link_id=link.id, referrer=refer_url, ip_hash=iphash)
     db.add(new_click)
     db.commit()
