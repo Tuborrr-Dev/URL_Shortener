@@ -5,6 +5,12 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
 
+# for cachihne
+import redis
+
+"""unknown redis connection, fill later"""
+r = redis.Redis(decode_responses=True)
+
 
 # now we create an entire function to do all our CRUD processes for us
 def shorten(username: str, long_url: str, db: Session) -> str:
@@ -40,16 +46,21 @@ def shorten(username: str, long_url: str, db: Session) -> str:
 
 
 def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str:
-    """instead of doing all of the below if its cached we wouldnt need to bother"""
+    long_url = r.get({short_code})
+    if long_url:
+        return long_url
     # check in Link and get long url from DB
     link = db.query(Link).filter(Link.short_code == short_code).first()
+    long_url = link.long_url
+    # we now have the long link so lets cache
+    r.set({short_code}, {long_url})
     if not link:  # not in that bih
         return None
     # above all else after confirming a link exists now a count should exist towards its clicks
     new_click = Click(link_id=link.id, referrer=refer_url, ip_hash=iphash)
     db.add(new_click)
     db.commit()
-    return link.long_url
+    return long_url
 
 
 #    NEXT THING TO DO IS Cache the code → URL in Redis with a 1-hour TTL
