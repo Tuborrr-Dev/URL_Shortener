@@ -6,11 +6,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import func
 
 # for cachihne
-import redis
+from URL_Shortener.services.cache import r
 import json
-
-"""unknown redis connection, fill later"""
-r = redis.Redis(decode_responses=True)
 
 
 # now we create an entire function to do all our CRUD processes for us
@@ -46,9 +43,11 @@ def shorten(username: str, long_url: str, db: Session) -> str:
     return None
 
 
-def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str:
-    cached_data = r.get({short_code})
-    if long_url:  # <-- then we have it in the cache
+def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str | None:
+    link_id = None
+    long_url = None
+    cached_data = r.get(short_code)
+    if cached_data:  # <-- then we have it in the cache
         data = json.loads(cached_data)
         link_id = data["id"]
         long_url = data["long_url"]
@@ -58,8 +57,13 @@ def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str:
         if not link:  # not in that bih
             return None
         long_url = link.long_url
-        # we now have the long link so lets cache
-        r.set({short_code}, {long_url})
+        link_id = link.id
+        # we now have the long link so lets cache in json form
+        r.set(
+            short_code,
+            json.dumps({"id": link_id, "long_url": long_url}),
+            ex=3600,
+        )  # <-- TTL is 1 hour
     # above all else after confirming a link exists now a count should exist towards its clicks
     new_click = Click(link_id=link.id, referrer=refer_url, ip_hash=iphash)
     db.add(new_click)
