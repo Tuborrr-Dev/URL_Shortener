@@ -16,6 +16,8 @@ def shorten(username: str, long_url: str, db: Session) -> str:
         return None
     if long_url is None:
         return None
+
+    """replace the below with a more efficient method of caching"""
     # in the case we have stored the exact same URL before, we dont want to store the same thing, save space
     link_b4 = db.query(Link).filter(Link.long_url == long_url).first()
     if link_b4:
@@ -38,6 +40,7 @@ def shorten(username: str, long_url: str, db: Session) -> str:
 
 
 def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str:
+    """instead of doing all of the below if its cached we wouldnt need to bother"""
     # check in Link and get long url from DB
     link = db.query(Link).filter(Link.short_code == short_code).first()
     if not link:  # not in that bih
