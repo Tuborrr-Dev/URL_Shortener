@@ -49,8 +49,9 @@ def generate_url(short_code: str, request: Request, db: Session = Depends(get_db
         url=long_cd, status_code=307
     )  # <-- ensures our click function is active and still redirects the browser insteda of json
 
-    # .  and then Record every click in the clicks table as a background RQ job
 
-
-# GET /links/{code}/stats —
-# return click count and clicks per day (SQL aggregates)
+# GET /links/{code}/stats <-- return click count and clicks per day (SQL aggregates)
+@router.get("/links/{short_code}/stats")
+def generate_url(short_code: str) -> int:
+    # this returns an integer count
+    pass
