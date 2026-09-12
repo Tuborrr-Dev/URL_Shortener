@@ -7,6 +7,7 @@ from sqlalchemy import func
 
 # for cachihne
 import redis
+import json
 
 """unknown redis connection, fill later"""
 r = redis.Redis(decode_responses=True)
@@ -46,16 +47,19 @@ def shorten(username: str, long_url: str, db: Session) -> str:
 
 
 def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str:
-    long_url = r.get({short_code})
-    if long_url:
-        return long_url
-    # check in Link and get long url from DB
-    link = db.query(Link).filter(Link.short_code == short_code).first()
-    long_url = link.long_url
-    # we now have the long link so lets cache
-    r.set({short_code}, {long_url})
-    if not link:  # not in that bih
-        return None
+    cached_data = r.get({short_code})
+    if long_url:  # <-- then we have it in the cache
+        data = json.loads(cached_data)
+        link_id = data["id"]
+        long_url = data["long_url"]
+    # not in cache so check in Link and get long url from DB
+    else:
+        link = db.query(Link).filter(Link.short_code == short_code).first()
+        if not link:  # not in that bih
+            return None
+        long_url = link.long_url
+        # we now have the long link so lets cache
+        r.set({short_code}, {long_url})
     # above all else after confirming a link exists now a count should exist towards its clicks
     new_click = Click(link_id=link.id, referrer=refer_url, ip_hash=iphash)
     db.add(new_click)
