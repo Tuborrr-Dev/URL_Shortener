@@ -7,7 +7,9 @@ from URL_Shortener.core.config import (
 DB_URL = settings.DATABASE_URL
 
 engine = create_engine(DB_URL)  # engine created
-SessionLocal = sessionmaker(bind=engine)  # engine binded to the
+SessionLocal = sessionmaker(
+    bind=engine
+)  # engine binded to the machine that ensures back and forth flow in sqlalchemy
 
 
 class Base(DeclarativeBase):
