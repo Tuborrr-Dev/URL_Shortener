@@ -3,7 +3,6 @@ from URL_Shortener.services.shortener import shorten_B62
 from URL_Shortener.schemas.pydantic_models import UrlRequest
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import func
 
 # for cachihne
 from URL_Shortener.services.cache import r
@@ -74,8 +73,3 @@ def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str |
         ip_hash=iphash,
     )
     return long_url
-
-
-"""total_clicks = (
-        db.query(func.count(Click.id)).filter(Click.link_id == link.id).scalar()
-    )"""
