@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from URL_Shortener.schemas.pydantic_models import UrlRequest
 from URL_Shortener.crud.url_processing import shorten, elongate
+from URL_Shortener.crud.url_stats import count_em_up, count_em_24hr
 import hashlib
 
 router = APIRouter()
@@ -52,6 +53,11 @@ def generate_url(short_code: str, request: Request, db: Session = Depends(get_db
 
 # GET /links/{code}/stats <-- return click count and clicks per day (SQL aggregates)
 @router.get("/links/{short_code}/stats")
-def generate_url(short_code: str) -> int:
-    # this returns an integer count
+def generate_url(short_code: str, db: Session = Depends(get_db)):
+    # in thte function below if we get none we know the link is non-existent
+    result = count_em_up(short_code, db)  # <-- this is the total count of clicks
+    if result:  # <-- we only bother if we already got something and Not None
+        result_24hr = count_em_24hr(
+            short_code, db
+        )  # <-- this is the total count of clicks in the past 24 hours
     pass
