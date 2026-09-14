@@ -38,20 +38,19 @@ def count_em_up(short_code: str, db: Session) -> int:
     return total_clicks
 
 
-def count_em_24hr(short_code: str, db: Session) -> int:
-    # for the past 24 hours we do a filter based off timestamp
+def count_em_hr(short_code: str, limit_hrs: int, db: Session) -> int:
+    # for the past 24 hours we do a filter based off epoch timestamp
     # we first checked if it exists which it does so it's definitely in cache
     cached_data = r.get(short_code)
-    if not cached_data:
-        return None
     data = json.loads(cached_data)
     link_id = data["id"]
     # now we have link ID so we calculate using epoch to know exact 24 hour ago
-    limit_epoch = int(time.time()) - 86400  # 86400 is 24hrs ago in secs
+    epoch_limit = limit_hrs * 60 * 60
+    limit_time = int(time.time()) - epoch_limit  # 86400 is 24hrs ago in secs
     total_clicks_24hr = (
         db.query(func.count(Click.id))
         .filter(Click.link_id == link_id)
-        .filter(Click.clicked_at >= limit_epoch)
+        .filter(Click.clicked_at >= limit_time)
         .scalar()
     )
     return total_clicks_24hr
