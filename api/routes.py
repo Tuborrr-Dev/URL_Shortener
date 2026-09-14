@@ -54,9 +54,9 @@ def generate_url(short_code: str, request: Request, db: Session = Depends(get_db
 # GET /links/{code}/stats <-- return click count and clicks per day (SQL aggregates)
 @router.get("/links/{short_code}/stats")
 def generate_url(short_code: str, db: Session = Depends(get_db)):
-    # in thte function below if we get none we know the link is non-existent
+    # in the function below if we get none we know the link is non-existent
     result = count_em_up(short_code, db)  # <-- this is the total count of clicks
-    if result:  # <-- we only bother if we already got something and Not None
+    if result != None:  # <-- we only bother if we already got something and Not None
         result_24hr = count_em_24hr(
             short_code, db
         )  # <-- this is the total count of clicks in the past 24 hours
