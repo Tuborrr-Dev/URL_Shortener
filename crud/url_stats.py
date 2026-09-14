@@ -36,4 +36,12 @@ def count_em_up(short_code: str, db: Session) -> int:
 
 def count_em_24hr(short_code: str, db: Session) -> int:
     # for the past 24 hours we do a filter based off timestamp
-    pass
+    # we first checked if it exists which it does so it's definitely in cache
+    cached_data = r.get(short_code)
+    data = json.loads(cached_data)
+    link_id = data["id"]
+    # now we have link ID so we count em up
+    total_clicks = (
+        db.query(func.count(Click.id)).filter(Click.link_id == link_id).scalar()
+    )  # <-- the func count is the sqlalchemy equivalent of count in TEXT
+    return total_clicks
