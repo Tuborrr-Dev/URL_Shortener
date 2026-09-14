@@ -59,5 +59,4 @@ def generate_url(short_code: str, db: Session = Depends(get_db)):
     if result != None:  # <-- we only bother if we already got something and Not None
         result_24hr = count_em_24hr(
             short_code, db
-        )  # <-- this is the total count of clicks in the past 24 hours
-    pass
+        )  # <-- this is the total count of clicks in the past 24 hours and would return none is nothing is in cached
