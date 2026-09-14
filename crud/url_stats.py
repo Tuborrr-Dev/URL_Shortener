@@ -34,4 +34,6 @@ def count_em_up(short_code: str, db: Session) -> int:
     return total_clicks
 
 
-# for the past 24 hours we do a filter based off timestamp
+def count_em_24hr(short_code: str, db: Session) -> int:
+    # for the past 24 hours we do a filter based off timestamp
+    pass
