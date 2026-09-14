@@ -4,6 +4,9 @@ from URL_Shortener.schemas.pydantic_models import UrlRequest
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
+# this is calculating the date
+import time
+
 # for cachihne
 from URL_Shortener.services.cache import r
 import json
@@ -68,8 +71,6 @@ def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str |
         )  # <-- TTL is 1 hour
     # above all else after confirming a link exists now a count should exist towards its clicks
     log_clicks.delay(
-        link_id=link_id,
-        referrer=refer_url,
-        ip_hash=iphash,
-    )
+        link_id=link_id, referrer=refer_url, ip_hash=iphash, clicked_at=int(time.time())
+    )  # <-- we now save the date time in epoch
     return long_url
