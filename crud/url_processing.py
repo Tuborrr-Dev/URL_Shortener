@@ -17,16 +17,16 @@ from URL_Shortener.services.background_tasks import log_clicks
 
 # now we create an entire function to do all our CRUD processes for us
 def shorten(username: str, long_url: str, db: Session) -> str:
+    # 0. check if anything is in url
+    if long_url is None:
+        return None
     # 1. Check user
     user = (
         db.query(User).filter(User.username == username).first()
     )  # we query the DB to check for username first instance
     if not user:
         return None
-    if long_url is None:
-        return None
-
-    """replace the below with a more efficient method of caching"""
+    """we would be adding the option to add a check user in the DB later """
     # in the case we have stored the exact same URL before, we dont want to store the same thing, save space
     link_b4 = db.query(Link).filter(Link.long_url == long_url).first()
     if link_b4:
