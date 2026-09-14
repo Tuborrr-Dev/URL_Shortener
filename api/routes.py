@@ -10,8 +10,7 @@ import hashlib
 router = APIRouter()
 
 # endpoint to register a user still not available
-# endpoint to check if a user exists still not available
-# ability to track all clicks to a short_code with timestamps
+# table to store endpoint and it's click counts in background updated every hour
 
 
 @router.post("/shorten_url")  # <-- this is the post method to our API to save the URL
