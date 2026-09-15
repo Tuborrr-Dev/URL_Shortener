@@ -19,7 +19,7 @@ def count_em_up(short_code: str, db: Session) -> int:
     if cached_data:  # <-- then we have it in the cache
         data = json.loads(cached_data)
         link_id = data["id"]
-        long_url = link.long_url
+        long_url = data["long_url"]
     else:  # not in cache so we have to go find the link ID first
         link = db.query(Link).filter(Link.short_code == short_code).first()
         if not link:  # not in our DB
