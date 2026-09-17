@@ -25,6 +25,7 @@ def count_em_up(short_code: str, db: Session) -> int:
         if not link:  # not in our DB
             return None
         link_id = link.id
+        long_url = link.long_url
         # we now have the link access so lets cache either way in json form
         r.set(
             short_code,
