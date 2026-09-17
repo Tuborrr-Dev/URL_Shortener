@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 # this is calculating the date
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 # for accessing DB
 from models.models import Link, Click
@@ -14,53 +14,52 @@ from services.cache import r
 import json
 
 
-def count_em_up(short_code: str, db: Session) -> int:
+def get_link_id(short_code: str, db: Session) -> int | None:
+    """Safely gets link_id from Redis cache or falls back to DB query."""
     cached_data = r.get(short_code)
-    if cached_data:  # <-- then we have it in the cache
-        data = json.loads(cached_data)
-        link_id = data["id"]
-        long_url = data["long_url"]
-    else:  # not in cache so we have to go find the link ID first
-        link = db.query(Link).filter(Link.short_code == short_code).first()
-        if not link:  # not in our DB
-            return None
-        link_id = link.id
-        long_url = link.long_url
-        # we now have the link access so lets cache either way in json form
-        r.set(
-            short_code,
-            json.dumps({"id": link_id, "long_url": long_url}),
-            ex=3600,
-        )
-    # now we have link ID so we count em up
-    total_clicks = (
-        db.query(func.count(Click.id)).filter(Click.link_id == link_id).scalar()
-    )  # <-- the func count is the sqlalchemy equivalent of count in TEXT
-    return total_clicks
+    if cached_data:
+        return json.loads(cached_data)["id"]
+
+    link = db.query(Link).filter(Link.short_code == short_code).first()
+    if not link:
+        return None
+
+    r.set(
+        short_code,
+        json.dumps({"id": link.id, "long_url": link.long_url}),
+        ex=3600,
+    )
+    return link.id
 
 
-def count_em_hr(short_code: str, limit_hrs: int, db: Session) -> int:
-    # for the past 24 hours we do a filter based off epoch timestamp
-    # we first checked if it exists which it does so it's definitely in cache
-    cached_data = r.get(short_code)
-    data = json.loads(cached_data)
-    link_id = data["id"]
-    # now we have link ID so we calculate using epoch to know exact 24 hour ago
-    epoch_limit = limit_hrs * 60 * 60
-    limit_time = int(time.time()) - epoch_limit  # 86400 is 24hrs ago in secs
-    total_clicks_24hr = (
+def count_em_up(short_code: str, db: Session) -> int | None:
+    # we use the above function to get the link id we need so no need to repeat code
+    link_id = get_link_id(short_code, db)
+    if link_id is None:
+        return None
+    return db.query(func.count(Click.id)).filter(Click.link_id == link_id).scalar()
+
+
+def count_em_hr(short_code: str, limit_hrs: int, db: Session) -> int | None:
+    # in the case we are given a time limit
+    link_id = get_link_id(short_code, db)
+    if link_id is None:
+        return None
+
+    cutoff_time = datetime.now(timezone.utc) - timedelta(hours=limit_hrs)
+
+    return (
         db.query(func.count(Click.id))
-        .filter(Click.link_id == link_id)
-        .filter(Click.clicked_at >= limit_time)
+        .filter(Click.link_id == link_id, Click.clicked_at >= cutoff_time)
         .scalar()
     )
-    return total_clicks_24hr
 
 
-def daily_counts(short_code: str, db: Session) -> dict:
-    cached_data = r.get(short_code)
-    data = json.loads(cached_data)
-    link_id = data["id"]
+def daily_counts(short_code: str, db: Session) -> list[dict] | None:
+    link_id = get_link_id(short_code, db)
+    if link_id is None:
+        return None
+    # this is done for our chats for trendlines and shi
     daily_clicks = (
         db.query(
             func.date(Click.clicked_at).label("date"),
@@ -71,8 +70,5 @@ def daily_counts(short_code: str, db: Session) -> dict:
         .order_by(func.date(Click.clicked_at).desc())
         .all()
     )
-    return {
-        "clicks_per_day": [
-            {"date": str(row.date), "clicks": row.clicks} for row in daily_clicks
-        ],
-    }
+
+    return [{"date": str(row.date), "clicks": row.clicks} for row in daily_clicks]
