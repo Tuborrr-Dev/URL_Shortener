@@ -12,12 +12,10 @@ from sqlalchemy.exc import OperationalError
     retry_backoff=True,  # Exponential backoff (2s, 4s, 8s...)
     retry_backoff_max=600,  # Cap wait time at 10 minutes
 )
-def log_clicks(link_id: int, referrer: str | None, ip_hash: str, clicked_at: int):
+def log_clicks(link_id: int, referrer: str | None, ip_hash: str):
     db = SessionLocal()  # Standalone session for worker thread
     try:
-        new_click = Click(
-            link_id=link_id, referrer=referrer, ip_hash=ip_hash, clicked_at=clicked_at
-        )
+        new_click = Click(link_id=link_id, referrer=referrer, ip_hash=ip_hash)
         db.add(new_click)
         db.commit()
     finally:
