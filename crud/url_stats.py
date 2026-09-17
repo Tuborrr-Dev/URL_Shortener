@@ -55,3 +55,24 @@ def count_em_hr(short_code: str, limit_hrs: int, db: Session) -> int:
         .scalar()
     )
     return total_clicks_24hr
+
+
+def daily_counts(short_code: str, db: Session) -> dict:
+    cached_data = r.get(short_code)
+    data = json.loads(cached_data)
+    link_id = data["id"]
+    daily_clicks = (
+        db.query(
+            func.date(Click.clicked_at).label("date"),
+            func.count(Click.id).label("clicks"),
+        )
+        .filter(Click.link_id == link_id)
+        .group_by(func.date(Click.clicked_at))
+        .order_by(func.date(Click.clicked_at).desc())
+        .all()
+    )
+    return {
+        "clicks_per_day": [
+            {"date": str(row.date), "clicks": row.clicks} for row in daily_clicks
+        ],
+    }
