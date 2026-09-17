@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import get_db
 from schemas.pydantic_models import UrlRequest
 from crud.url_processing import shorten, elongate
-from crud.url_stats import count_em_up, count_em_hr
+from crud.url_stats import count_em_up, count_em_hr, daily_counts
 import hashlib
 
 router = APIRouter()
@@ -64,10 +64,14 @@ def generate_url_stats(
     result = count_em_up(short_code, db)  # <-- this is the total count of clicks
     if result == None:
         raise HTTPException(status_code=404, detail="Link not found")
-    else:  # <-- we only bother if we already got something and Not None
-        result_limit_hr = count_em_hr(
-            short_code, limit_hrs, db
-        )  # <-- this is the total count of clicks in the past 24 hours and would return none is nothing is in cached
-        # but we also need daily clicks so we would be adding that
+    # we dont need to bother about the below returning none since if it would we would already have it above
+    result_hr = count_em_hr(
+        short_code, limit_hrs, db
+    )  # if no parameter query this returns from the past 24hrs
+    daily_stats = daily_counts(short_code, db)  # dict of every click stats daily
 
-    return {"24 hour clicks": result_limit_hr, "All time clicks": result}
+    return {
+        "hour clicks": result_hr,
+        "daily stats": daily_stats,
+        "All time clicks": result,
+    }
