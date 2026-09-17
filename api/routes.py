@@ -64,7 +64,7 @@ def generate_url_stats(
 
     result = count_em_up(short_code, db)  # <-- this is the total count of clicks
     if result == None:
-        raise HTTPException(status_code=400, detail="Link not found")
+        raise HTTPException(status_code=404, detail="Link not found")
     else:  # <-- we only bother if we already got something and Not None
         result_limit_hr = count_em_hr(
             short_code, limit_hrs, db
