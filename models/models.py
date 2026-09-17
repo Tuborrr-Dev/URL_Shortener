@@ -32,9 +32,7 @@ class Click(Base):
     link_id = Column(
         Integer, ForeignKey("links.id", ondelete="CASCADE"), nullable=False
     )
-    # we use epoch to save clicked at
-    clicked_at = Column(Integer, nullable=False, index=True)
-    clicked_at_date = Column(DateTime, server_default=text("now()"))
+    created_at = Column(DateTime, server_default=text("now()"))
     ip_hash = Column(String(100))
     referrer = Column(String(250))
     link = relationship("Link", back_populates="clicks")
