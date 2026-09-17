@@ -45,6 +45,11 @@ def generate_url(short_code: str, request: Request, db: Session = Depends(get_db
     # now long_cd contains the full url
     if not long_cd:
         raise HTTPException(status_code=404, detail="Link not found")
+    """Browsers cache 301 redirects aggressively in local storage. 
+    Once a user clicks the shortened link for the first time, 
+    their browser saves the destination URL locally. 
+    On every future click, the browser bypasses the API server completely and goes straight to the target URL. 
+    Result: inaccurate click stats"""
     return RedirectResponse(
         url=long_cd, status_code=307
     )  # <-- ensures our click function is active and still redirects the browser insteda of json
