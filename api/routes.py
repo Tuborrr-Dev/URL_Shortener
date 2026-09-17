@@ -61,7 +61,6 @@ def generate_url_stats(
     short_code: str, limit_hrs: int = 24, db: Session = Depends(get_db)
 ):
     # in the function below if we get none we know the link is non-existent
-
     result = count_em_up(short_code, db)  # <-- this is the total count of clicks
     if result == None:
         raise HTTPException(status_code=404, detail="Link not found")
@@ -69,4 +68,6 @@ def generate_url_stats(
         result_limit_hr = count_em_hr(
             short_code, limit_hrs, db
         )  # <-- this is the total count of clicks in the past 24 hours and would return none is nothing is in cached
+        # but we also need daily clicks so we would be adding that
+
     return {"24 hour clicks": result_limit_hr, "All time clicks": result}
