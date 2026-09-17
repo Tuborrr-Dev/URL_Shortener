@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from URL_Shortener.api.routes import (
-    router,
+from URL_Shortener.api import (
+    routes,
 )  # this isnt done in the main.py file because we want to keep the main.py file clean and organized
 
 app = FastAPI(title="URL Shortener API", version="1.0.0")
