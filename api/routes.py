@@ -56,7 +56,9 @@ def generate_url(short_code: str, limit_hrs: int = 24, db: Session = Depends(get
     # in the function below if we get none we know the link is non-existent
 
     result = count_em_up(short_code, db)  # <-- this is the total count of clicks
-    if result != None:  # <-- we only bother if we already got something and Not None
+    if result == None:
+        raise HTTPException(status_code=400, detail="Link not found")
+    else:  # <-- we only bother if we already got something and Not None
         result_limit_hr = count_em_hr(
             short_code, limit_hrs, db
         )  # <-- this is the total count of clicks in the past 24 hours and would return none is nothing is in cached
