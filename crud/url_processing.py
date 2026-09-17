@@ -71,6 +71,6 @@ def elongate(short_code: str, refer_url: str, iphash: str, db: Session) -> str |
         )  # <-- TTL is 1 hour
     # above all else after confirming a link exists now a count should exist towards its clicks
     log_clicks.delay(
-        link_id=link_id, referrer=refer_url, ip_hash=iphash, clicked_at=int(time.time())
+        link_id=link_id, referrer=refer_url, ip_hash=iphash
     )  # <-- we now save the date time in epoch
     return long_url
