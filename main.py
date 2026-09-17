@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from URL_Shortener.api.routes import (
+from api.routes import (
     router,
 )  # this isnt done in the main.py file because we want to keep the main.py file clean and organized
 

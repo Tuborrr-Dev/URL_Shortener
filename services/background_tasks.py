@@ -1,8 +1,8 @@
 from database import (
     SessionLocal,
 )  # <-- we have to use a seperate connection since this is a diff task
-from URL_Shortener.models.models import Click
-from URL_Shortener.services.celery_app import celery_app
+from models.models import Click
+from services.celery_app import celery_app
 from sqlalchemy.exc import OperationalError
 
 

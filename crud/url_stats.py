@@ -7,10 +7,10 @@ import time
 from datetime import datetime, timezone
 
 # for accessing DB
-from URL_Shortener.models.models import Link, Click
+from models.models import Link, Click
 
 # for getting cache data
-from URL_Shortener.services.cache import r
+from services.cache import r
 import json
 
 

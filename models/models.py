@@ -1,6 +1,6 @@
-from URL_Shortener.database import Base, engine
-from sqlalchemy import Table, text, Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.orm import relationship, DeclarativeBase
+from database import Base, engine
+from sqlalchemy import text, Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
 
 
 class User(Base):

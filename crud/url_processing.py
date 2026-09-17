@@ -1,6 +1,6 @@
-from URL_Shortener.models.models import User, Link, Click
-from URL_Shortener.services.shortener import shorten_B62
-from URL_Shortener.schemas.pydantic_models import UrlRequest
+from models.models import User, Link, Click
+from services.shortener import shorten_B62
+from schemas.pydantic_models import UrlRequest
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
@@ -8,11 +8,11 @@ from sqlalchemy.exc import IntegrityError
 import time
 
 # for cachihne
-from URL_Shortener.services.cache import r
+from services.cache import r
 import json
 
 # for background jobs
-from URL_Shortener.services.background_tasks import log_clicks
+from services.background_tasks import log_clicks
 
 
 # now we create an entire function to do all our CRUD processes for us

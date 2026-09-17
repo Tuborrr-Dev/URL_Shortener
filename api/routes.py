@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database import get_db
-from URL_Shortener.schemas.pydantic_models import UrlRequest
-from URL_Shortener.crud.url_processing import shorten, elongate
-from URL_Shortener.crud.url_stats import count_em_up, count_em_hr
+from schemas.pydantic_models import UrlRequest
+from crud.url_processing import shorten, elongate
+from crud.url_stats import count_em_up, count_em_hr
 import hashlib
 
 router = APIRouter()
