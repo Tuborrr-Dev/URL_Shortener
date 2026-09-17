@@ -34,6 +34,7 @@ class Click(Base):
     )
     # we use epoch to save clicked at
     clicked_at = Column(Integer, nullable=False, index=True)
+    clicked_at_date = Column(DateTime, server_default=text("now()"))
     ip_hash = Column(String(100))
     referrer = Column(String(250))
     link = relationship("Link", back_populates="clicks")
